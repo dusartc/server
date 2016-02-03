@@ -16,11 +16,8 @@ int main(void){
       perror("socket client");
       exit(EXIT_FAILURE);
     }
-
-    const char* mess = "bonjour\n";
+    const char* mess = "Bonjour, nous vous remercions d'avoir choisi notre serveur.\nPour vous montrer notre gratitude voici un recette de cordon bleu.\n\nTout d'abord aller dans la grande surface la plus proche pour vous\nprocurer l'élément principal, votre paquet de cordons bleu surgelés.\n\nUne fois cette étape terminée, faites préchauffer votre four.\nfaites chauffer les cordons bleu, bravo vous avez reussi.\nVous pouvez donc dès maintenant déguster un met fin et délicat.\n\nbisous.\n";
     write(socket_client, mess, strlen(mess));
-    sleep(1);
-
     char buffer[BUFFER_SIZE];
     while(1){
       memset(buffer, '\0', BUFFER_SIZE);
