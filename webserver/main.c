@@ -6,6 +6,8 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
+#define BUFFER_SIZE 1024
+
 int main(void){
   int socket_client, socket_serveur = creer_serveur(8080);
   while(1){
@@ -19,11 +21,11 @@ int main(void){
     write(socket_client, mess, strlen(mess));
     sleep(1);
 
-    char buffer[1024];
+    char buffer[BUFFER_SIZE];
     while(1){
-      memset(buffer, '\0', 1024);
+      memset(buffer, '\0', BUFFER_SIZE);
       int n=0;
-      if((n=read(socket_client, buffer, 1024))==-1){
+      if((n=read(socket_client, buffer, BUFFER_SIZE))==-1){
         perror("read");
         return EXIT_FAILURE;
       }
