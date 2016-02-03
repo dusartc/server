@@ -16,7 +16,7 @@ int main(void){
       perror("socket client");
       exit(EXIT_FAILURE);
     }
-    const char* mess = "Bonjour, nous vous remercions d'avoir choisi notre serveur.\nPour vous montrer notre gratitude voici un recette de cordon bleu.\n\nTout d'abord aller dans la grande surface la plus proche pour vous\nprocurer l'élément principal, votre paquet de cordons bleu surgelés.\n\nUne fois cette étape terminée, faites préchauffer votre four.\nfaites chauffer les cordons bleu, bravo vous avez reussi.\nVous pouvez donc dès maintenant déguster un met fin et délicat.\n\nbisous.\n";
+    const char* mess = "Bonjour, nous vous remercions d'avoir choisi notre serveur.\nPour vous montrer notre gratitude voici un recette de cordon bleu.\n\nTout d'abord aller dans la grande surface la plus proche pour vous\nprocurer l'élément principal, votre paquet de cordons bleu surgelés.\n\nUne fois cette étape terminée, faites préchauffer votre four.\nfaites chauffer les cordons bleu, bravo vous avez reussi.\nVous pouvez donc dès maintenant déguster un met fin et délicat.\n\nJe sais que cela nous vous suffit pas gredin\n je vais donc vous expliquer comment faire du flan, tout d'abord allez chez le fermier volez-lui une vache\n vous récuperer le lait.\nMaintenant on fait bouillir le lait et on ajoute le sachet magique et vous mélangez.\nBravo vous savez préparer le président de la République !";
     write(socket_client, mess, strlen(mess));
     char buffer[BUFFER_SIZE];
     while(1){
