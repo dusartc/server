@@ -1,8 +1,12 @@
 #include <signal.h>
 #include <stdio.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 void traitement_signal(int sig){
-  printf("Signal reçu\n");
+  printf(" Signal %d reçu\n",sig);
+  int status;
+  waitpid(-1,&status,0);
 }
 
 void initialiser_signaux(void){
@@ -14,7 +18,7 @@ void initialiser_signaux(void){
   sigemptyset(&sa.sa_mask);
   sa.sa_flags = SA_RESTART ;
   if (sigaction(SIGCHLD, &sa, NULL) == -1)  {
-    perror ( " sigaction ( SIGCHLD ) " );
+    perror("sigaction (SIGCHLD)");
   }
 }
 

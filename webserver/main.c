@@ -11,7 +11,6 @@
 
 int main(void){
   int socket_client, socket_serveur = creer_serveur(8080);
-
   initialiser_signaux();
   while(1){
     socket_client = accept(socket_serveur, NULL, NULL);
@@ -28,17 +27,23 @@ int main(void){
       while(1){
         memset(buffer, '\0', BUFFER_SIZE);
         int n=0;
-        if((n=read(socket_client, buffer, BUFFER_SIZE))==-1){
+        while((n=read(socket_client, buffer, BUFFER_SIZE))>0){
+          write(socket_client, buffer, n);
+        }
+        if(n==-1){
           perror("read");
           return EXIT_FAILURE;
         }
-        write(socket_client,buffer, strlen(buffer));
+        if(n==0){
+          close(socket_client);
+          return EXIT_SUCCESS;
+        }
       }
     } else {
       close(socket_client);
     }
   }
-  close(socket_client);
+  //close(socket_client); //deja fermer
   close(socket_serveur);
   return EXIT_SUCCESS;
 }
