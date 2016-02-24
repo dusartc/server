@@ -1,4 +1,5 @@
 #include "socket.h"
+#include "parser.h"
 #include "config.h"
 #include <stdio.h>
 #include <unistd.h>
@@ -38,6 +39,7 @@ int main(void){
         int n=0;
         while((buf=fgets(buffer, BUFFER_SIZE, server))!=NULL){
           printf("%s", buffer);
+          parse(buffer);
         }
         if(n==-1){
           perror("read");
