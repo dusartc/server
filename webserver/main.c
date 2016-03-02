@@ -59,6 +59,7 @@ int main(void){
             get=0;done=0;toto=0;
           }
         }
+        exit(EXIT_SUCCESS);
       }
     } else {
       close(socket_client);
