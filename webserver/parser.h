@@ -1,1 +1,1 @@
-void parse(char * str);
+int parse(char * str);

@@ -10,6 +10,13 @@
 
 #define BUFFER_SIZE 1024
 
+const char* mess = "Bonjour, nous vous remercions d'avoir choisi notre serveur.\nPour vous montrer notre gratitude voici une recette de cordon bleu.\n\nTout d'abord aller dans la grande surface la plus proche pour vous\nprocurer l'élément principal, votre paquet de cordons bleu surgelés.\n\nUne fois cette étape terminée, faites préchauffer votre four.\nFaites chauffer les cordons bleu, bravo vous avez reussi.\nVous pouvez donc dès maintenant déguster un mets fin et délicat.\n\nJe sais que cela nous vous suffit pas petite gourgandine, \nje vais donc vous expliquer comment faire du flan, tout d'abord allez chez le fermier, volez-lui une vache, vous récuperez le lait.\nMaintenant on fait bouillir le lait et on ajoute le sachet magique et vous mélangez.\n\nBravo vous savez préparer le président de la République !\n\n";
+
+const char* error404 = "HTTP/1.1 400 Bad Request\r\nConnection: close\
+                        \r\nContent-Length: 17\r\n\r\n400 Bad request";
+
+char* ok = "HTTP/1.1 200 OK\r\nContent-Length: %d\r\n\r\n%s";
+
 int main(void){
   int socket_client, socket_serveur = creer_serveur(8080);
   initialiser_signaux();
@@ -25,29 +32,25 @@ int main(void){
         perror("socket client");
         exit(EXIT_FAILURE);
       }
-      const char* mess = "Bonjour, nous vous remercions d'avoir choisi notre serveur.\nPour vous montrer notre gratitude voici une recette de cordon bleu.\n\nTout d'abord aller dans la grande surface la plus proche pour vous\nprocurer l'élément principal, votre paquet de cordons bleu surgelés.\n\nUne fois cette étape terminée, faites préchauffer votre four.\nFaites chauffer les cordons bleu, bravo vous avez reussi.\nVous pouvez donc dès maintenant déguster un mets fin et délicat.\n\nJe sais que cela nous vous suffit pas petite gourgandine, \nje vais donc vous expliquer comment faire du flan, tout d'abord allez chez le fermier, volez-lui une vache, vous récuperez le lait.\nMaintenant on fait bouillir le lait et on ajoute le sachet magique et vous mélangez.\n\nBravo vous savez préparer le président de la République !\n\n";
-
       sleep(1);
-      if(fwrite(mess, strlen(mess), 1, server) == 0){
-        perror("fwrite");
-        return EXIT_FAILURE;
-      }
       char buffer[BUFFER_SIZE];
       char *buf;
       while(1){
         memset(buffer, '\0', BUFFER_SIZE);
-        int n=0;
+        int get=0, done=0;
         while((buf=fgets(buffer, BUFFER_SIZE, server))!=NULL){
           printf("%s", buffer);
-          parse(buffer);
-        }
-        if(n==-1){
-          perror("read");
-          return EXIT_FAILURE;
-        }
-        if(n==0){
-          close(socket_client);
-          return EXIT_SUCCESS;
+          if(parse(buffer) == 1) get = 1;
+          if(strcmp(buffer, "\r\n") == 0) done = 1;
+          if(get == 1 && done == 1){
+            fprintf(server, ok, strlen(mess),mess);
+            fflush(server);
+          } else if(done == 1){
+            if(fwrite(error404, strlen(error404), 1, server) == 0){
+              perror("fwrite");
+              return EXIT_FAILURE;
+            }
+          }
         }
       }
     } else {
