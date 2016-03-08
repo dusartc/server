@@ -1,7 +1,7 @@
 #include "socket.h"
 #include "parser.h"
 #include "config.h"
-#include <stdio.h>
+#include "error.h"
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,12 +11,6 @@
 #define BUFFER_SIZE 1024
 
 const char* mess = "Bonjour, nous vous remercions d'avoir choisi notre serveur.\nPour vous montrer notre gratitude voici une recette de cordon bleu.\n\nTout d'abord aller dans la grande surface la plus proche pour vous\nprocurer l'élément principal, votre paquet de cordons bleu surgelés.\n\nUne fois cette étape terminée, faites préchauffer votre four.\nFaites chauffer les cordons bleu, bravo vous avez reussi.\nVous pouvez donc dès maintenant déguster un mets fin et délicat.\n\nJe sais que cela nous vous suffit pas petite gourgandine, \nje vais donc vous expliquer comment faire du flan, tout d'abord allez chez le fermier, volez-lui une vache, vous récuperez le lait.\nMaintenant on fait bouillir le lait et on ajoute le sachet magique et vous mélangez.\n\nBravo vous savez préparer le président de la République !\n\n";
-
-const char* error400 = "HTTP/1.1 400 Bad Request\r\nConnection: close\
-                        \r\nContent-Length: 17\r\n\r\n400 Bad request\r\n";
-
-const char* error404 = "HTTP/1.1 404 File Not Found\r\nContent-Length:\
-                         18\r\n\r\n404 File not found\r\n";
 
 char* ok = "HTTP/1.1 200 OK\r\nContent-Length: %d\r\n\r\n%s";
 
@@ -40,23 +34,27 @@ int main(void){
       char *buf;
       while(1){
         memset(buffer, '\0', BUFFER_SIZE);
-        int get=0, done=0, toto=0;
+        int parse_status, done=0, line_header=0;
+        http_request request;
         while((buf=fgets(buffer, BUFFER_SIZE, server))!=NULL){
           printf("%s", buffer);
-          if((toto = parse(buffer)) != 0) get = toto;
+          line_header++;
+          if(line_header == 1) parse_status = parse(buffer, &request);
           if(strcmp(buffer, "\r\n") == 0) done = 1;
-          if(get == 1 && done == 1){
-            fprintf(server, ok, strlen(mess),mess);
-            fflush(server);
-            get=0;done=0;toto=0;
-          } else if(get == 2 && done == 1){
-            fprintf(server, error404);
-            fflush(server);
-            get=0;done=0;toto=0;
+          if(parse_status == 0 && done == 1){
+            error400(server);
           } else if(done == 1){
-            fprintf(server, error400);
-            fflush(server);
-            get=0;done=0;toto=0;
+            if(request.method == HTTP_GET){
+              if(strcmp(request.url, "/") == 0){
+                fprintf(server, ok, strlen(mess), mess);
+                fflush(server);
+                done = 0; line_header = 0; parse_status = 0;
+              } else {
+                error404(server);
+              } 
+            } else {
+              error400(server);
+            }
           }
         }
         exit(EXIT_SUCCESS);
