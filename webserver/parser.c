@@ -34,3 +34,8 @@ char *fgest_or_exit(char *buffer, int size, FILE *stream){
   } 
   return t;
 }
+
+void skip_headers(FILE *stream){
+  char buf[1024];
+  while(fgest_or_exit(buf, sizeof(buf), stream) != NULL && strcmp(buf, "\n\r") != 0);
+}
