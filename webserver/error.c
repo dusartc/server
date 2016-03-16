@@ -11,6 +11,10 @@ void send_status(FILE *stream, int code, const char *reason){
 
 void send_response(FILE *stream, int code, const char *reason, const char *body){
   send_status(stream, code, reason);
-  fprintf(stream, "Content-Length: %zd\r\n\r\n%s", strlen(body), body);
+  if(code != 200){
+    fprintf(stream, "Content-Length: %zd\r\n\r\n%s", strlen(body), body);
+  } else {
+    fprintf(stream, "%s", body);
+  }
   fflush(stream);
 }

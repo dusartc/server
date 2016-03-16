@@ -12,7 +12,9 @@
 
 const char* mess = "Bonjour, nous vous remercions d'avoir choisi notre serveur.\nPour vous montrer notre gratitude voici une recette de cordon bleu.\n\nTout d'abord aller dans la grande surface la plus proche pour vous\nprocurer l'élément principal, votre paquet de cordons bleu surgelés.\n\nUne fois cette étape terminée, faites préchauffer votre four.\nFaites chauffer les cordons bleu, bravo vous avez reussi.\nVous pouvez donc dès maintenant déguster un mets fin et délicat.\n\nJe sais que cela nous vous suffit pas petite gourgandine, \nje vais donc vous expliquer comment faire du flan, tout d'abord allez chez le fermier, volez-lui une vache, vous récuperez le lait.\nMaintenant on fait bouillir le lait et on ajoute le sachet magique et vous mélangez.\n\nBravo vous savez préparer le président de la République !\n\n";
 
-int main(void){
+int main(int argc, char **argv){
+  char *dir = root_directory(argc, argv);
+  printf("dossier utiliser : %s\n",dir);
   int socket_client, socket_serveur = creer_serveur(8080);
   initialiser_signaux();
   while(1){
@@ -34,6 +36,7 @@ int main(void){
         memset(buffer, '\0', BUFFER_SIZE);
         int parse_status, done=0, line_header=0;
         http_request request;
+        memset(&request, '\0', sizeof(request));
         while((buf=fgets(buffer, BUFFER_SIZE, server))!=NULL){
           printf("%s", buffer);
           line_header++;
@@ -43,8 +46,15 @@ int main(void){
             send_response(server, 400, "Bad Request", "Bad Request\r\n");
           } else if(done == 1){
             if(request.method == HTTP_GET){
-              if(strcmp(request.url, "/") == 0){
-                send_response(server, 200, "OK", mess);
+              printf("request.url dir (main): %s\n\t%s\n", request.url, dir);
+              int file = 0;
+              if((file = check_and_open(request.url, dir)) != -1){
+                int size = get_file_size(file);
+                char *rep = "Content-Length: ";
+                sprintf(rep, "%d\r\n\r\n" ,size);
+                send_response(server, 200, "OK", rep);
+                copy(file, socket_client);
+                fflush(server);
               } else {
                 send_response(server, 404, "Not Found", "Not Found\r\n");
               } 

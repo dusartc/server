@@ -17,3 +17,6 @@ char *fgets_or_exit(char *buffer, int size, FILE *stream);
 void skip_headers(FILE *stream);
 
 char *rewrite_url(char *url);
+int check_and_open(const char *url, const char *root);
+int get_file_size(int fd);
+int copy(int in, int out);
