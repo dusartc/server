@@ -16,7 +16,7 @@ int parse(char *str, http_request *request){
     return 0;
   }
   token = strtok(NULL, delim);
-  request->url = token;
+  request->url = rewrite_url(token);
   token = strtok(NULL, delim);
   request->major_version = (int)token[5];
   request->minor_version = (int)token[7];
@@ -38,4 +38,15 @@ char *fgest_or_exit(char *buffer, int size, FILE *stream){
 void skip_headers(FILE *stream){
   char buf[1024];
   while(fgest_or_exit(buf, sizeof(buf), stream) != NULL && strcmp(buf, "\n\r") != 0);
+}
+
+char *rewrite_url(char *url){
+  char *index;
+  if((index=strchr(url, '?')) != NULL){
+    char *sub = malloc((int)(index - url) + 1);
+    strncpy(sub, url, (int)(index - url));
+    printf("\n%s\n",sub);
+    return sub; 
+  }
+  return url;
 }

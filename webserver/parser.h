@@ -15,3 +15,5 @@ typedef struct {
 int parse(char *str, http_request *request);
 char *fgets_or_exit(char *buffer, int size, FILE *stream);
 void skip_headers(FILE *stream);
+
+char *rewrite_url(char *url);
