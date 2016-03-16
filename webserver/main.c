@@ -28,12 +28,17 @@ int main(void){
         exit(EXIT_FAILURE);
       }
       sleep(1);
+      FILE *client = fdopen(socket_client,"w+");
+      
       char buffer[BUFFER_SIZE];
       char *buf;
       while(1){
         memset(buffer, '\0', BUFFER_SIZE);
         int parse_status, done=0, line_header=0;
         http_request request;
+
+       // int request_value;        
+        skip_headers(client);
         while((buf=fgets(buffer, BUFFER_SIZE, server))!=NULL){
           printf("%s", buffer);
           line_header++;
@@ -44,7 +49,7 @@ int main(void){
           } else if(done == 1){
             if(request.method == HTTP_GET){
               if(strcmp(request.url, "/") == 0){
-                send_response(server, 200, "OK", mess);
+               send_response(server, 200, "OK", mess);
               } else {
                 send_response(server, 404, "Not Found", "Not Found\r\n");
               } 
@@ -54,7 +59,17 @@ int main(void){
             done = 0; line_header = 0; parse_status = 0;
           }
         }
-        exit(EXIT_SUCCESS);
+
+       /* if (request_value){
+          send_response ( client, 400, "Bad Request", "Bad request \r\n " );
+        }else if ( request.method == HTTP_UNSUPPORTED ){
+        send_response ( client, 405, "Method Not Allowed", " Method Not Allowed\r\n " );
+        }else if ( strcmp ( request.url, "/" ) == 0){
+          send_response ( client, 200, "OK", mess );
+        }else
+          send_response ( client, 404, " Not Found ",  "Not Found \r\n " );
+       */
+      exit(EXIT_SUCCESS);
       }
     } else {
       close(socket_client);
