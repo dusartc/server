@@ -12,8 +12,6 @@
 
 const char* mess = "Bonjour, nous vous remercions d'avoir choisi notre serveur.\nPour vous montrer notre gratitude voici une recette de cordon bleu.\n\nTout d'abord aller dans la grande surface la plus proche pour vous\nprocurer l'élément principal, votre paquet de cordons bleu surgelés.\n\nUne fois cette étape terminée, faites préchauffer votre four.\nFaites chauffer les cordons bleu, bravo vous avez reussi.\nVous pouvez donc dès maintenant déguster un mets fin et délicat.\n\nJe sais que cela nous vous suffit pas petite gourgandine, \nje vais donc vous expliquer comment faire du flan, tout d'abord allez chez le fermier, volez-lui une vache, vous récuperez le lait.\nMaintenant on fait bouillir le lait et on ajoute le sachet magique et vous mélangez.\n\nBravo vous savez préparer le président de la République !\n\n";
 
-char* ok = "HTTP/1.1 200 OK\r\nContent-Length: %d\r\n\r\n%s";
-
 int main(void){
   int socket_client, socket_serveur = creer_serveur(8080);
   initialiser_signaux();
@@ -42,19 +40,18 @@ int main(void){
           if(line_header == 1) parse_status = parse(buffer, &request);
           if(strcmp(buffer, "\r\n") == 0) done = 1;
           if(parse_status == 0 && done == 1){
-            error400(server);
+            send_response(server, 400, "Bad Request", "Bad Request\r\n");
           } else if(done == 1){
             if(request.method == HTTP_GET){
               if(strcmp(request.url, "/") == 0){
-                fprintf(server, ok, strlen(mess), mess);
-                fflush(server);
-                done = 0; line_header = 0; parse_status = 0;
+                send_response(server, 200, "OK", mess);
               } else {
-                error404(server);
+                send_response(server, 404, "Not Found", "Not Found\r\n");
               } 
             } else {
-              error400(server);
+              send_response(server, 400, "Bad Request", "Bad Request\r\n");
             }
+            done = 0; line_header = 0; parse_status = 0;
           }
         }
         exit(EXIT_SUCCESS);
