@@ -1,20 +1,16 @@
 #include "error.h"
 #include <stdlib.h>
+#include <string.h>
 
-const char* erreur400 = "HTTP/1.1 400 Bad Request\r\nConnection: close\
-                        \r\nContent-Length: 17\r\n\r\n400 Bad request\r\n";
- 
-const char* erreur404 = "HTTP/1.1 404 File Not Found\r\nContent-Length:\
-                        18\r\n\r\n404 File not found\r\n";
-
-void error400(FILE *stream){
-  fprintf(stream, erreur400);
-  fflush(stream);
-  exit(EXIT_SUCCESS);
+void send_status(FILE *stream, int code, const char *reason){
+  fprintf(stream, "HTTP/1.1 %d %s\r\n", code, reason);
+  if(code != 200){
+    fprintf(stream, "Connection: close\r\n");
+  }
 }
 
-void error404(FILE *stream){
-  fprintf(stream, erreur404);
+void send_response(FILE *stream, int code, const char *reason, const char *body){
+  send_status(stream, code, reason);
+  fprintf(stream, "Content-Length: %zd\r\n\r\n%s", strlen(body), body);
   fflush(stream);
-  exit(EXIT_SUCCESS);
 }
